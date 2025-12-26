@@ -1,0 +1,9 @@
+streamlit
+streamlit-option-menu
+streamlit-agraph
+pandas
+neo4j
+python-dotenv
+google-generativeai
+easyocr
+pypdf2
