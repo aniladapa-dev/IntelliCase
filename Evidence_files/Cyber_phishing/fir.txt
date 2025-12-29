@@ -1,0 +1,30 @@
+	FIRST INFORMATION REPORT (U/S 154 Cr.P.C.)
+
+1. District: Hyderabad         Police Station: Cyber Crimes PS
+   Year: 2024                  FIR No: 2024/004
+   Date: 2024-02-10            Time: 14:00 PM
+
+2. Complainant / Informant:
+   Name: Mrs. Anita Desai
+   Address: Flat 402, Lotus Towers, Somajiguda.
+
+3. Details of Incident:
+   Date of Offense: 2024-02-10
+   Time of Offense: 10:30 AM
+   Nature of Crime: Cyber Fraud / Cheating (IT Act Sec 66D, IPC 420).
+
+4. Accused / Suspect Details:
+   Name: Unknown Caller (Fake Bank Agent)
+   Phone Used: +91-7799001122
+   Target Bank Account: HDFC Bank
+
+5. Loss:
+   Amount: Rs. 1,50,000 (One Lakh Fifty Thousand).
+
+6. Brief Description of Offense:
+   The complainant received a call from +91-7799001122 claiming to be a bank manager. The caller stated her KYC was expired and asked her to download a remote access app "QuickSupport". Upon doing so, Rs. 1.5 Lakhs was debited from her account in three tranches.
+   
+   Preliminary trace shows the money moved to a mule account held by one "Vikram Sethi".
+
+7. Action Taken:
+   Bank accounts frozen. CDR for 7799001122 requested.

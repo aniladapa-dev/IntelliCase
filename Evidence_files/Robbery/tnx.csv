@@ -1,0 +1,4 @@
+Transaction_ID,Date,Description,Type,Amount,Beneficiary_Name,Beneficiary_Account
+TXN_5001,2024-01-13,UPI Payment - Liquor Mart,DEBIT,1500,Liquor Mart,UPI-MERCHANT
+TXN_5002,2024-01-15,CASH DEPOSIT - ATM KUKATPALLY,CREDIT,20000,SELF,CASH
+TXN_5003,2024-01-15,IMPS Transfer to Suresh G,DEBIT,10000,Suresh G,XXXX-8888

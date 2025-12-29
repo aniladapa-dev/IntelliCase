@@ -1,0 +1,4 @@
+Transaction_ID,Date,Description,Type,Amount,Beneficiary_Name,Beneficiary_Account
+TXN_3001,2024-03-01,Fuel Station Borabanda,DEBIT,200,Indian Oil,UPI-MERCHANT
+TXN_3002,2024-03-05,CASH DEPOSIT (Muthoot Fin Branch),CREDIT,150000,Karan Singh,SELF
+TXN_3003,2024-03-05,Wine Shop Purchase,DEBIT,2000,Sri Durga Wines,UPI-MERCHANT
