@@ -191,29 +191,64 @@ elif selected == "Dashboard":
     
     st.markdown("---")
     
-    # 2. Analytics Split
-    ac1, ac2 = st.columns([2, 1])
+    # --- ROW 2: GEOSPATIAL INTELLIGENCE ---
+    st.markdown("### 🗺️ Live Situational Awareness")
+    if stats["map_data"]:
+        st.map(pd.DataFrame(stats["map_data"]), zoom=3, width="stretch")
+    else:
+        st.info("No geospatial data available yet.")
+    st.markdown("---")
     
-    with ac1:
-        st.subheader("📉 Crime Distribution")
-        if stats['crime_types']:
-            df_chart = pd.DataFrame(list(stats['crime_types'].items()), columns=['Type', 'Count'])
-            fig = px.bar(df_chart, x='Type', y='Count', color='Count', template="plotly_white")
-            st.plotly_chart(fig, width="stretch")
-            
-        else:
-            st.info("No crime data available for visualization.")
-            
-    with ac2:
-        st.subheader("📝 Recent Activity")
-        if stats['recent_cases']:
-            st.dataframe(
-                pd.DataFrame(stats['recent_cases']), 
-                hide_index=True, 
-                width="stretch"
+    # --- ROW 3: TREND ANALYSIS ---
+    st.subheader("📈 Crime Escalation Timeline")
+    if stats["timeline"]:
+        df_time = pd.DataFrame(stats["timeline"]).sort_values("date")
+        fig_line = px.line(
+            df_time, x="date", y="count", markers=True, 
+            title="Frequency of Incidents Over Time",
+            labels={"date": "Date", "count": "Incidents"}
+        )
+        st.plotly_chart(fig_line, width="stretch")
+    st.markdown("---")
+    
+    # --- ROW 4: DEEP DIVE ANALYTICS ---
+    st.markdown("---")
+    c1, c2 = st.columns(2)
+    
+    with c1:
+        st.subheader("🎯 Crime Hierarchy")
+        if stats["sunburst_data"]:
+            fig_sun = px.sunburst(
+                pd.DataFrame(stats["sunburst_data"]), 
+                path=['station', 'type'], values='count',
+                title="Station → Crime Type Drilldown"
             )
+            st.plotly_chart(fig_sun, width="stretch")
         else:
-            st.caption("No recent cases found.")
+            st.info("Insufficient data for hierarchy rendering.")
+
+    with c2:
+        st.subheader("🏢 Inter-Agency Load")
+        if stats["stations"]:
+            df_st = pd.DataFrame(list(stats["stations"].items()), columns=["Station", "Load"])
+            fig_bar = px.bar(
+                df_st, x="Load", y="Station", orientation='h',
+                color="Load", title="Active Cases by Station"
+            )
+            st.plotly_chart(fig_bar, width="stretch")
+        else:
+            st.info("No agency load data available.")
+    
+    st.markdown("---")
+    st.subheader("📝 Recent Activity")
+    if stats['recent_cases']:
+        st.dataframe(
+            pd.DataFrame(stats['recent_cases']), 
+            hide_index=True, 
+            width="stretch"
+        )
+    else:
+        st.caption("No recent cases found.")
     
     st.success("✅ System Status: Online | Database: Connected")
 

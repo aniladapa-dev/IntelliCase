@@ -1,4 +1,5 @@
 import os
+import random
 from dotenv import load_dotenv
 from neo4j import GraphDatabase
 from pathlib import Path
@@ -273,53 +274,79 @@ class GraphManager:
         return results
 
     def get_dashboard_stats(self):
-        """Fetches counts, recent cases, and crime type distribution."""
+        """Fetches counts, timeline, station stats, map data, and sunburst data."""
         stats = {
             "cases": 0, "suspects": 0, "vehicles": 0, "phones": 0,
-            "recent_cases": [],
-            "crime_types": {} # New: For Bar Chart
+            "recent_cases": [], "crime_types": {},
+            "timeline": [], "stations": {},
+            "map_data": [], "sunburst_data": []
         }
         
-        # 1. Counts
-        query_counts = """
-        MATCH (c:Case) WITH count(c) as cases
-        OPTIONAL MATCH (p:Person) WITH cases, count(p) as suspects
-        OPTIONAL MATCH (v:Vehicle) WITH cases, suspects, count(v) as vehicles
-        OPTIONAL MATCH (ph:Phone) WITH cases, suspects, vehicles, count(ph) as phones
-        RETURN cases, suspects, vehicles, phones
-        """
-        
-        # 2. Recent Cases
-        query_recent = """
-        MATCH (c:Case)
-        RETURN c.id as FIR_ID, c.station as Station, c.date as Date, c.type as Crime
-        ORDER BY c.date DESC LIMIT 5
-        """
-        
-        # 3. Crime Distribution (Group by Type)
-        query_types = """
-        MATCH (c:Case)
-        RETURN c.type as type, count(c) as count
-        ORDER BY count DESC
-        """
-        
+        # SMART GEOCODING: Major Indian City Hubs (Lat, Lon)
+        CITY_HUBS = {
+            "Delhi": [28.6139, 77.2090], "Mumbai": [19.0760, 72.8777],
+            "Bangalore": [12.9716, 77.5946], "Hyderabad": [17.3850, 78.4867],
+            "Chennai": [13.0827, 80.2707], "Kolkata": [22.5726, 88.3639],
+            "Pune": [18.5204, 73.8567], "Ahmedabad": [23.0225, 72.5714],
+            "Jaipur": [26.9124, 75.7873], "Kochi": [9.9312, 76.2673],
+            "Indiranagar": [12.9716, 77.5946], # Mapping specific stations
+            "Panjagutta": [17.3850, 78.4867],
+            "Aluva": [9.9312, 76.2673],
+            "Saket": [28.6139, 77.2090],
+            "Andheri": [19.1136, 72.8697]
+        }
+
         try:
             with self.driver.session() as session:
-                # Counts
-                res = session.run(query_counts).single()
+                # 1. Basic Counts
+                q_counts = "MATCH (c:Case) WITH count(c) as cases OPTIONAL MATCH (p:Person) WITH cases, count(p) as suspects OPTIONAL MATCH (v:Vehicle) WITH cases, suspects, count(v) as vehicles OPTIONAL MATCH (ph:Phone) WITH cases, suspects, vehicles, count(ph) as phones RETURN cases, suspects, vehicles, phones"
+                res = session.run(q_counts).single()
                 if res:
                     stats["cases"] = res["cases"]
                     stats["suspects"] = res["suspects"]
                     stats["vehicles"] = res["vehicles"]
                     stats["phones"] = res["phones"]
+
+                # 2. Visuals: Map & Sunburst
+                map_points = []
+                sunburst_rows = []
                 
-                # Recents
-                stats["recent_cases"] = [dict(r) for r in session.run(query_recent)]
+                # Note: c.type used instead of c.crime_type to match DB schema
+                q_visuals = "MATCH (c:Case) RETURN c.station as station, c.type as type, count(c) as count"
+                for row in session.run(q_visuals):
+                    st_name = row['station'] if row['station'] else "Unknown"
+                    c_type = row['type']
+                    count = row['count']
+                    
+                    sunburst_rows.append({"station": st_name, "type": c_type, "count": count})
+                    
+                    # Geocoding Logic
+                    found_coords = None
+                    for city, coords in CITY_HUBS.items():
+                        if city.lower() in st_name.lower():
+                            found_coords = coords
+                            break
+                    
+                    if found_coords:
+                        base_lat, base_lon = found_coords
+                        for _ in range(count):
+                            # Add Jitter (Approx 2km) for realistic clustering
+                            map_points.append({
+                                "lat": base_lat + random.uniform(-0.02, 0.02),
+                                "lon": base_lon + random.uniform(-0.02, 0.02)
+                            })
                 
-                # Crime Types
-                type_res = session.run(query_types)
-                stats["crime_types"] = {row["type"]: row["count"] for row in type_res}
+                stats["map_data"] = map_points
+                stats["sunburst_data"] = sunburst_rows
                 
+                # 3. Analytics: Timeline & Stations
+                stats["timeline"] = [dict(row) for row in session.run("MATCH (c:Case) RETURN c.date as date, count(c) as count ORDER BY c.date ASC")]
+                stats["stations"] = {row["station"]: row["count"] for row in session.run("MATCH (c:Case) RETURN c.station as station, count(c) as count ORDER BY count DESC LIMIT 10")}
+                # Note: c.type used instead of c.crime_type to match DB schema
+                stats["crime_types"] = {row["type"]: row["count"] for row in session.run("MATCH (c:Case) RETURN c.type as type, count(c) as count")}
+                # Note: c.id used instead of c.fir_id to match DB schema, c.type instead of c.crime_type
+                stats["recent_cases"] = [dict(r) for r in session.run("MATCH (c:Case) RETURN c.id as FIR_ID, c.station as Station, c.date as Date, c.type as Crime ORDER BY c.date DESC LIMIT 5")]
+
         except Exception as e:
             print(f"Error fetching stats: {e}")
         return stats
