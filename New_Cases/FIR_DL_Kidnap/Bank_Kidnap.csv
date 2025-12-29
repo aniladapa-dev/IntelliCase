@@ -1,0 +1,3 @@
+Transaction_ID,Date,Sender_Account,Receiver_Account,Amount,Type,Remarks
+TXN_111,2024-02-16,ACC_BUSINESSMAN,ACC_RAJESH_BHAI,500000,UPI,Ransom Payment
+TXN_112,2024-02-16,ACC_RAJESH_BHAI,ACC_UNKNOWN,10000,ATM,Withdrawal

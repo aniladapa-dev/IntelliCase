@@ -52,7 +52,9 @@ def load_evidence_db(db_folder="Evidence_DB"):
                                 data = process_fir(file_path)
                                 
                                 if "error" not in data:
-                                    gm.add_fir_data(data, link_to_case_id=case_id)
+                                    # Add case_id to the data for the new CCTNS system
+                                    data['fir_id'] = case_id
+                                    gm.add_fir_data(data)
                                     file_count += 1
                                     print(f"✅ [SUCCESS] {filename} processed and linked.", flush=True)
                                 else:

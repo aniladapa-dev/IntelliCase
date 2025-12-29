@@ -2,12 +2,13 @@ import os
 import json
 from pathlib import Path
 from dotenv import load_dotenv
-import google.generativeai as genai
 import warnings
 
 # Suppress warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
+
+import google.generativeai as genai
 
 # Load Environment Variables
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -61,19 +62,25 @@ def process_fir(file_path):
     model = genai.GenerativeModel('gemini-flash-latest')
     
     prompt = f"""
-    Analyze this Police FIR (First Information Report) text.
-    Extract the following fields into a pure JSON object:
-    - suspect_name (String, or "Unknown")
-    - suspect_phone (String, or null)
-    - victim_name (String, or "Unknown")
-    - victim_phone (String, or null)
-    - vehicle_number (String, standardized uppercase, no spaces e.g. "MH02C5555")
-    - vehicle_model (String)
-    - crime_type (String)
-    - location (String)
-    - date (String, YYYY-MM-DD format if possible)
-
-    Text:
+    You are a police intelligence AI. Extract entities from this FIR text into valid JSON.
+    
+    CRITICAL: You MUST extract the 'fir_id'. 
+    - Look for "FIR No", "Crime No", or "Case No".
+    - If found (e.g., "0305"), combine with Year/Station to make a unique ID like "FIR_2023_305".
+    - NEVER return null or empty for fir_id.
+    
+    STRICT JSON OUTPUT:
+    {{
+        "fir_id": "FIR_2023_305",
+        "crime_type": "Robbery",
+        "date": "2023-06-15",
+        "station": "Indiranagar PS",
+        "suspects": ["Ravi Kumar"],
+        "vehicles": ["MH12HG9999"],
+        "phones": ["9848022338"]
+    }}
+    
+    Input Text:
     {file_text}
     
     Return ONLY valid JSON. No markdown formatting.
@@ -87,6 +94,20 @@ def process_fir(file_path):
         if cleaned_text.endswith("```"): cleaned_text = cleaned_text[:-3]
         
         data = json.loads(cleaned_text.strip())
+        
+        # --- REGEX FALLBACK FOR ID ---
+        if not data.get('fir_id'):
+            import re
+            # Try to find "FIR No: XXXX" pattern
+            match = re.search(r'FIR\s*(?:No|Number)?\.?\s*[:\-]?\s*(\w+)', file_text, re.IGNORECASE)
+            if match:
+                raw_id = match.group(1)
+                # Try to find year
+                year_match = re.search(r'Year\s*[:\-]?\s*(\d{4})', file_text, re.IGNORECASE)
+                year = year_match.group(1) if year_match else "Unknown"
+                data['fir_id'] = f"FIR_{year}_{raw_id}"
+                print(f"   ⚠️ [FALLBACK] Regex recovered ID: {data['fir_id']}", flush=True)
+
         print(f"   ✅ [SUCCESS] Extracted FIR details for {data.get('suspect_name')}", flush=True)
         return data
 
