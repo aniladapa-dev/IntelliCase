@@ -1,3 +1,0 @@
-Transaction_ID,Date,Sender_Account,Receiver_Account,Amount,Type,Remarks
-TXN_999,2024-03-09,ACC_DUBAI,ACC_FAIZAL,2000000,SWIFT,Consultancy Fee
-TXN_888,2024-03-10,ACC_FAIZAL,ACC_AGENT,50000,UPI,Transport

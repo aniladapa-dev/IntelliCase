@@ -110,19 +110,32 @@ with st.sidebar:
     st.markdown("### **IntelliCase**")
     st.markdown("---")
     
-    # Navigation
+    # Navigation logic
+    pages = ["Home", "Dashboard", "Data Ingestion", "Investigation Board"]
+    if "selected_page" not in st.session_state:
+        st.session_state.selected_page = "Home"
+
+    # Calculate index for default_index
+    def_idx = pages.index(st.session_state.selected_page)
+
     selected = option_menu(
         menu_title=None,
-        options=["Home", "Dashboard", "Data Ingestion", "Investigation Board"], 
+        options=pages, 
         icons=["house", "speedometer2", "cloud-upload", "diagram-3"], 
-        default_index=0,
+        default_index=def_idx,
         styles={
             "container": {"padding": "0!important", "background-color": "transparent"},
             "icon": {"font-size": "16px"}, 
             "nav-link": {"font-size": "14px", "margin":"0px", "--hover-color": "rgba(0,0,0,0.05)"},
             "nav-link-selected": {"background-color": "#2563EB", "color": "#FFF"},
-        }
+        },
+        key=f"nav_{st.session_state.selected_page}" # Dynamic key to force re-render on programmatic change
     )
+    
+    # Update state if manually changed via sidebar
+    if selected != st.session_state.selected_page:
+        st.session_state.selected_page = selected
+        st.rerun()
     
     st.markdown("---")
     
@@ -173,7 +186,7 @@ if selected == "Home":
     res_col1, res_col2 = st.columns([1, 4])
     with res_col1:
         if st.button("Go to Dashboard ->", type="primary"):
-            st.session_state.selected = "Dashboard" # Hacky nav, usually requires rerun
+            st.session_state.selected_page = "Dashboard" # Set to Dashboard by name
             st.rerun()
 
 # --- PAGE: DASHBOARD (ANALYTICS) ---
@@ -194,7 +207,7 @@ elif selected == "Dashboard":
     # --- ROW 2: GEOSPATIAL INTELLIGENCE ---
     st.markdown("### 🗺️ Live Situational Awareness")
     if stats["map_data"]:
-        st.map(pd.DataFrame(stats["map_data"]), zoom=3, width="stretch")
+        st.map(pd.DataFrame(stats["map_data"]), zoom=3, use_container_width=True)
     else:
         st.info("No geospatial data available yet.")
     st.markdown("---")
@@ -208,7 +221,7 @@ elif selected == "Dashboard":
             title="Frequency of Incidents Over Time",
             labels={"date": "Date", "count": "Incidents"}
         )
-        st.plotly_chart(fig_line, width="stretch")
+        st.plotly_chart(fig_line, use_container_width=True)
     st.markdown("---")
     
     # --- ROW 4: DEEP DIVE ANALYTICS ---
@@ -223,7 +236,7 @@ elif selected == "Dashboard":
                 path=['station', 'type'], values='count',
                 title="Station → Crime Type Drilldown"
             )
-            st.plotly_chart(fig_sun, width="stretch")
+            st.plotly_chart(fig_sun, use_container_width=True)
         else:
             st.info("Insufficient data for hierarchy rendering.")
 
@@ -235,7 +248,7 @@ elif selected == "Dashboard":
                 df_st, x="Load", y="Station", orientation='h',
                 color="Load", title="Active Cases by Station"
             )
-            st.plotly_chart(fig_bar, width="stretch")
+            st.plotly_chart(fig_bar, use_container_width=True)
         else:
             st.info("No agency load data available.")
     

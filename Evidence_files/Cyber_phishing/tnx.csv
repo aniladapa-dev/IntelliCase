@@ -1,5 +1,0 @@
-Transaction_ID,Date,Description,Type,Amount,Beneficiary_Name,Beneficiary_Account
-TXN_9001,2024-02-10,IMPS-INB from Anita Desai,CREDIT,50000,Vikram Sethi,XXXX-4004
-TXN_9002,2024-02-10,IMPS-INB from Anita Desai,CREDIT,50000,Vikram Sethi,XXXX-4004
-TXN_9003,2024-02-10,IMPS-INB from Anita Desai,CREDIT,50000,Vikram Sethi,XXXX-4004
-TXN_9004,2024-02-10,ATM WDL - Panjagutta,DEBIT,40000,SELF,CASH

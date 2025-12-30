@@ -1,4 +1,0 @@
-Transaction_ID,Date,Description,Type,Amount,Beneficiary_Name,Beneficiary_Account
-TXN_1001,2024-01-18,Payment from Ravi Kumar - Logistics,CREDIT,5000,Suresh Reddy,XXXX-1122
-TXN_1002,2024-01-18,Petrol Bunk Madhapur,DEBIT,500,Indian Oil,UPI-MERCHANT
-TXN_1003,2024-01-18,Withdrawal ATM,DEBIT,2000,SELF,CASH

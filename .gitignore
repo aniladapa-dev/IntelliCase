@@ -3,3 +3,12 @@ __pycache__
 *.pyc
 Readme.txt
 .env
+
+# Data and Database directories
+neo4j_data/
+Evidence_DB/
+Evidence_files/
+New_Cases/
+cctns_db/
+assets/*.zip
+assets/temp_extracted/
